@@ -1,4 +1,5 @@
 import symrep
+import symrep.audio
 import unittest
 
 
@@ -28,7 +29,7 @@ class SymrepTest(unittest.TestCase):
         self.assertEqual(n(0), -2)
 
     def test_sine(self):
-        n = symrep.sine(symrep.const(1))
+        n = symrep.audio.sine(symrep.const(1))
         self.assertEqual(n(0), 0)
         self.assertEqual(n(0.25), 1)
         self.assertEqual(n(0.5), 0)
@@ -37,7 +38,7 @@ class SymrepTest(unittest.TestCase):
 
     def test_collect_nodes(self):
         n1 = symrep.const(1)
-        n2 = symrep.sine(n1)
+        n2 = symrep.audio.sine(n1)
         n3 = symrep.sum(n1, n2)
         n4 = symrep.const(-2)
         n5 = symrep.product(n3, n4)
@@ -49,9 +50,9 @@ class SymrepTest(unittest.TestCase):
 
     def test_dot(self):
         n = symrep.product(
-            symrep.sine(symrep.const(2)),
+            symrep.audio.sine(symrep.const(2)),
             symrep.product(
-                symrep.sine(symrep.const(3)),
+                symrep.audio.sine(symrep.const(3)),
                 symrep.sum(
                     symrep.const(1),
                     symrep.const(1),

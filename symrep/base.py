@@ -1,5 +1,3 @@
-import math
-
 def const(val):
     return Node("const {}".format(val), lambda _: val, [])
 
@@ -8,10 +6,6 @@ def sum(n1, n2):
 
 def product(n1, n2):
     return Node("product", lambda t: n1(t) * n2(t), [n1, n2])
-
-def sine(freq):
-    return Node(
-        "sin", lambda t: math.sin(t * freq(t) / (2 * math.pi)), [freq])
 
 class Node(object):
     _next_id = 0
