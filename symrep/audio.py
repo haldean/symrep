@@ -49,11 +49,3 @@ def to_wav(root, sample_rate, length, stream):
     stream.write("data")
     stream.write(struct.pack("<I", 4 * len(data)))
     data.tofile(stream)
-
-if __name__ == "__main__":
-    n = symrep.base.product(
-        sine(symrep.base.const(440)),
-        sine(symrep.base.const(0.2)),
-    )
-    with open("test.wav", "w") as f:
-        to_wav(n, 44100, 5, f)
