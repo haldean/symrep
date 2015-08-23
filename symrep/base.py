@@ -16,6 +16,15 @@ def product(*nodes):
         lambda t: reduce(operator.mul, (n(t) for n in nodes), 1),
         nodes)
 
+def piecewise(pre, post, split):
+    return Node(
+        "piecewise",
+        lambda t: pre(t) if t < split(t) else post(t - split(t)),
+        [pre, post, split])
+
+def shift(n, shift):
+    return Node("shift", lambda t: n(t + shift(t)), [n, shift])
+
 class Node(object):
     _next_id = 0
 
@@ -49,8 +58,19 @@ def collect_edges(root):
 def to_dot(root, stream, name="symrep"):
     stream.write("digraph {name} {{\n".format(name=name))
     for node in collect_nodes(root):
-        stream.write("{id} [label=\"{name}\"];\n".format(
+        stream.write("{id} [label=\"{name}\\n{id}\"];\n".format(
             id=node.id, name=node.name))
     for n1, n2 in collect_edges(root):
         stream.write("{n2} -> {n1};\n".format(n1=n1, n2=n2))
     stream.write("}\n")
+
+def dump_samples(root, min_t, max_t, delta_t, f):
+    nodes = list(collect_nodes(root))
+    nodes.sort(key=lambda n: n.id)
+    f.write("t," + ",".join(str(n.id) for n in nodes) + "\n")
+    t = min_t
+    while t < max_t:
+        f.write("{},".format(t))
+        f.write(",".join(repr(n(t)) for n in nodes))
+        f.write("\n")
+        t += delta_t

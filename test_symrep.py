@@ -36,6 +36,12 @@ class SymrepTest(unittest.TestCase):
         self.assertAlmostEqual(n(0.75), -1)
         self.assertAlmostEqual(n(1), 0)
 
+    def test_sine_modulation(self):
+        n = symrep.audio.sine(
+            symrep.audio.sawtooth(symrep.const(1)))
+        self.assertAlmostEqual(n(0), 0)
+        self.assertAlmostEqual(n(1), 0)
+
     def test_collect_nodes(self):
         n1 = symrep.const(1)
         n2 = symrep.audio.sine(n1)

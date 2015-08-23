@@ -1,14 +1,27 @@
 import array
+import datetime
 import math
 import struct
 import symrep.base
 
 def sine(freq):
     return symrep.base.Node(
-        "sin", lambda t: math.sin(t * freq(t) * 2. * math.pi), [freq])
+        "sine", lambda t: math.sin(t * freq(t) * 2. * math.pi), [freq])
 
-def square(freq):
-    pass
+def square(freq, duty):
+    def gen(t):
+        t = t * freq(t)
+        t_frac = t - int(t)
+        if t_frac < duty(t):
+            return 1.
+        return 0.
+    return symrep.base.Node("square", gen, [freq])
+
+def sawtooth(freq):
+    def gen(t):
+        t = t * freq(t)
+        return t - int(t)
+    return symrep.base.Node("sawtooth", gen, [freq])
 
 def _to_short(val, max_amplitude=1.0):
     short_max = (2 ** 15) - 1
@@ -19,18 +32,10 @@ def _to_short(val, max_amplitude=1.0):
         return -short_max
     return val
 
-def to_wav(root, sample_rate, length, stream):
-    bits_per_sample = 16
-    data = array.array("h", map(
-        lambda x: _to_short(x[1]),
-        symrep.base.sample(root, 0., length, 1. / sample_rate)))
-
+def _write_wav_header(stream, sample_rate, bits_per_sample, total_size):
     # begin file header
     stream.write("RIFF")
-    stream.write(struct.pack("<I",
-        # length of file is length of remaining bytes in the file header, length
-        # of the format header, length of the data header and the data itself
-        4 + 24 + 8 + len(data)))
+    stream.write(struct.pack("<I", total_size))
     stream.write("WAVE")
 
     # begin fmt block header
@@ -45,7 +50,28 @@ def to_wav(root, sample_rate, length, stream):
         bits_per_sample,
     ))
 
+
+def to_wav(root, sample_rate, length, stream):
+    bits_per_sample = 16
+    data = array.array("h", map(
+        lambda x: _to_short(x[1]),
+        symrep.base.sample(root, 0., length, 1. / sample_rate)))
+
+    # length of file is length of remaining bytes in the file header, length
+    # of the format header, length of the data header and the data itself
+    file_len = 4 + 24 + 8 + len(data)
+    _write_wav_header(stream, sample_rate, 16, file_len)
+
     # begin data header
     stream.write("data")
-    stream.write(struct.pack("<I", 4 * len(data)))
+    stream.write(struct.pack("<I", (bits_per_sample / 8) * len(data)))
     data.tofile(stream)
+
+def stream_pcm(root, sample_rate, stream):
+    _write_wav_header(stream, sample_rate, 16, 2 ** 32 - 1)
+    stream.write("data")
+    stream.write(struct.pack("<I", 2 ** 32 - 1))
+    t = 0.
+    while True:
+        stream.write(struct.pack("<h", _to_short(root(t))))
+        t += 1. / sample_rate
