@@ -30,11 +30,11 @@ class SymrepTest(unittest.TestCase):
 
     def test_sine(self):
         n = symrep.audio.sine(symrep.const(1))
-        self.assertEqual(n(0), 0)
-        self.assertEqual(n(0.25), 1)
-        self.assertEqual(n(0.5), 0)
-        self.assertEqual(n(0.75), -1)
-        self.assertEqual(n(1), 0)
+        self.assertAlmostEqual(n(0), 0)
+        self.assertAlmostEqual(n(0.25), 1)
+        self.assertAlmostEqual(n(0.5), 0)
+        self.assertAlmostEqual(n(0.75), -1)
+        self.assertAlmostEqual(n(1), 0)
 
     def test_collect_nodes(self):
         n1 = symrep.const(1)
