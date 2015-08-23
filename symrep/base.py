@@ -1,5 +1,7 @@
 import functools
+import numpy as np
 import operator
+import random
 
 
 def const(val):
