@@ -21,6 +21,12 @@ class Node(object):
     def __call__(self, t):
         return self.func(t)
 
+def sample(root, min_t, max_t, delta_t):
+    t = min_t
+    while t < max_t:
+        yield t, root(t)
+        t += delta_t
+
 def collect_nodes(root):
     return set([root]).union(
         reduce(set.union, map(collect_nodes, root.deps), set()))

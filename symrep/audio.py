@@ -1,27 +1,29 @@
 import array
 import math
 import struct
-import symrep
+import symrep.base
 
 def sine(freq):
-    return symrep.Node(
-        "sin", lambda t: math.sin(t * freq(t) / (2 * math.pi)), [freq])
+    return symrep.base.Node(
+        "sin", lambda t: math.sin(t * freq(t) * 2. * math.pi), [freq])
+
+def square(freq):
+    pass
+
+def _to_short(val, max_amplitude=1.0):
+    short_max = (2 ** 15) - 1
+    val = int(val / max_amplitude * short_max)
+    if val > short_max:
+        return short_max
+    elif val < -short_max:
+        return -short_max
+    return val
 
 def to_wav(root, sample_rate, length, stream):
-    num_samples = int(math.ceil(length * sample_rate))
-    print 'generating', num_samples, 'samples'
-    bits_per_sample = 32
-
-    def sample_t():
-        i = t = 0
-        while i < num_samples:
-            yield t
-            i += 1
-            t += 1 / sample_rate
-
-    data = array.array("f", (root(t) for t in sample_t()))
-    print 'data is', len(data), 'samples'
-    import pprint; pprint.pprint(data[:20])
+    bits_per_sample = 16
+    data = array.array("h", map(
+        lambda x: _to_short(x[1]),
+        symrep.base.sample(root, 0., length, 1. / sample_rate)))
 
     # begin file header
     stream.write("RIFF")
@@ -45,9 +47,13 @@ def to_wav(root, sample_rate, length, stream):
 
     # begin data header
     stream.write("data")
-    stream.write(struct.pack("<I", len(data)))
+    stream.write(struct.pack("<I", 4 * len(data)))
     data.tofile(stream)
 
 if __name__ == "__main__":
+    n = symrep.base.product(
+        sine(symrep.base.const(440)),
+        sine(symrep.base.const(0.2)),
+    )
     with open("test.wav", "w") as f:
-        to_wav(sine(symrep.const(440)), 41000, 10, f)
+        to_wav(n, 44100, 5, f)
