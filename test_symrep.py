@@ -17,8 +17,8 @@ class SymrepTest(unittest.TestCase):
         n = symrep.sum(n1, n2)
         self.assertEqual(n(0), 3)
 
-        n = symrep.sum(n1, n1)
-        self.assertEqual(n(0), 2)
+        n = symrep.sum(n1, n1, n1)
+        self.assertEqual(n(0), 3)
 
     def test_product(self):
         n = symrep.product(symrep.const(1), symrep.const(-3))

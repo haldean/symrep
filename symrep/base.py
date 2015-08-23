@@ -1,11 +1,20 @@
+import operator
+
+
 def const(val):
     return Node("const {}".format(val), lambda _: val, [])
 
-def sum(n1, n2):
-    return Node("add", lambda t: n1(t) + n2(t), [n1, n2])
+def sum(*nodes):
+    return Node(
+        "sum",
+        lambda t: reduce(operator.add, (n(t) for n in nodes), 0),
+        nodes)
 
-def product(n1, n2):
-    return Node("product", lambda t: n1(t) * n2(t), [n1, n2])
+def product(*nodes):
+    return Node(
+        "product",
+        lambda t: reduce(operator.mul, (n(t) for n in nodes), 1),
+        nodes)
 
 class Node(object):
     _next_id = 0
