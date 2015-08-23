@@ -1,3 +1,4 @@
+import functools
 import operator
 
 
@@ -6,13 +7,14 @@ def const(val):
 
 def sum(*nodes):
     return Node(
-        None, "sum", lambda t: reduce(operator.add, (n(t) for n in nodes), 0),
+        None, "sum",
+        lambda t: functools.reduce(operator.add, (n(t) for n in nodes), 0),
         {n: "value" for n in nodes})
 
 def product(*nodes):
     return Node(
         None, "product",
-        lambda t: reduce(operator.mul, (n(t) for n in nodes), 1),
+        lambda t: functools.reduce(operator.mul, (n(t) for n in nodes), 1),
         {n: "value" for n in nodes})
 
 def piecewise(pre, post, split, name=None):
@@ -48,11 +50,12 @@ def sample(root, min_t, max_t, delta_t):
 
 def collect_nodes(root):
     return set([root]).union(
-        reduce(set.union, map(collect_nodes, root.deps.keys()), set()))
+        functools.reduce(
+            set.union, map(collect_nodes, root.deps.keys()), set()))
 
 def collect_edges(root):
     edges = [(root.id, dep.id, dep_type)
-             for dep, dep_type in root.deps.iteritems()]
+             for dep, dep_type in root.deps.items()]
     for dep in root.deps.keys():
         edges.extend(collect_edges(dep))
     return edges

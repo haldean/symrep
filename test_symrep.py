@@ -2,6 +2,11 @@ import symrep
 import symrep.audio
 import unittest
 
+try:
+    import numpy as np
+except ImportError:
+    import numpypy as np
+
 
 class SymrepTest(unittest.TestCase):
     def test_const(self):
@@ -82,6 +87,24 @@ class SymrepTest(unittest.TestCase):
         )
         with open("test.dot", "w") as f:
             symrep.to_dot(n, f, name="test_dot")
+
+    def test_sphere(self):
+        n = symrep.solids.sphere(symrep.const(2))
+        cloud = list(symrep.solids.to_pointcloud(
+            n, -2. * np.ones(3), 2 * np.ones(3), 500))
+        self.assertEqual(len(cloud), 500)
+        for pt in cloud:
+            self.assertLessEqual(np.linalg.norm(pt[:3]), 2.)
+
+    def test_translate(self):
+        n = symrep.solids.translate(
+            symrep.solids.sphere(symrep.const(2)),
+            symrep.const(np.array((4., 0., 0.))),
+        )
+        self.assertLessEqual(n((4., 0., 0., 1.)), 0)
+        self.assertLessEqual(n((4., 1.5, 0., 1.)), 0)
+        self.assertGreaterEqual(n((4., 2.5, 0., 1.)), 0)
+        self.assertGreaterEqual(n((0., 0., 0., 1.)), 0)
 
 if __name__ == "__main__":
     unittest.main()
