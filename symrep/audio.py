@@ -4,24 +4,25 @@ import math
 import struct
 import symrep.base
 
-def sine(freq):
+def sine(freq, name=None):
     return symrep.base.Node(
-        "sine", lambda t: math.sin(t * freq(t) * 2. * math.pi), [freq])
+        name, "sine",
+        lambda t: math.sin(t * freq(t) * 2. * math.pi), {freq: "freq"})
 
-def square(freq, duty):
+def square(freq, duty, name=None):
     def gen(t):
         t = t * freq(t)
         t_frac = t - int(t)
         if t_frac < duty(t):
             return 1.
         return 0.
-    return symrep.base.Node("square", gen, [freq])
+    return symrep.base.Node(name, "square", gen, {freq: "freq"})
 
-def sawtooth(freq):
+def sawtooth(freq, name=None):
     def gen(t):
         t = t * freq(t)
         return t - int(t)
-    return symrep.base.Node("sawtooth", gen, [freq])
+    return symrep.base.Node(name, "sawtooth", gen, {freq: "freq"})
 
 def _to_short(val, max_amplitude=1.0):
     short_max = (2 ** 15) - 1
