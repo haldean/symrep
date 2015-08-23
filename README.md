@@ -7,63 +7,20 @@ then be sampled at different parameter values with varying results. `symrep` is
 written to be parameter-space agnostic, allowing for it to be used for
 everything from 5.1-channel audio to functional representation of 3D models.
 
-For example, this source code for audio synthesis (using the `symrep.audio`
-package):
-
-    from symrep import *
-    import sys
-
-    n = sum(
-        product(
-            const(0.3),
-            product(
-                audio.sine(const(440), name="tuner"),
-                audio.sine(const(0.5)),
-            )
-        ),
-        product(
-            const(0.2),
-            audio.sine(
-                product(
-                    const(400),
-                    piecewise(
-                        audio.sawtooth(const(1)),
-                        const(1),
-                        const(1),
-                    ),
-                ),
-                name="riser",
-            )
-        ),
-        product(
-            const(0.3),
-            audio.sine(const(220), name="thing"),
-        ),
-        product(
-            audio.sine(const(140), name="kick1"),
-            audio.square(const(2), const(0.05)),
-        ),
-        product(
-            const(0.5),
-            audio.sine(const(100), name="kick2"),
-            shift(
-                audio.square(const(2), const(0.05)),
-                const(0.25),
-            )
-        ),
-        product(
-            const(0.2),
-            audio.sine(const(523), name="duty"),
-            audio.square(
-                const(2),
-                audio.sawtooth(const(1. / 60.)),
-            ),
-        )
-    )
-    audio.stream_pcm(n, 44100, sys.stdout)
-
-Gives the following graph:
+For example, the source code for audio synthesis (using the `symrep.audio`
+package) in [examples/sound.py](https://github.com/haldean/symrep/blob/master/examples/sound.py)
+gives the following graph:
 
 ![](examples/sound.png)
 
-[...and this sound file](examples/sound.wav)
+[...and this sound file](examples/sound.wav).
+
+The source code for solid modelling (using the `symrep.solids` package) in
+[examples/solids.py](https://github.com/haldean/symrep/blob/master/examples/sphere.py)
+gives the following graph:
+
+![](examples/solids.png)
+
+and these solid bodies (rendered by MeshLab):
+
+![](https://raw.githubusercontent.com/haldean/symrep/master/examples/sphere.gif)
