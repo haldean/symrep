@@ -68,7 +68,6 @@ def sample_solid(root, lo, hi, eval_pt, max_points=None, max_sec=None):
     if max_points is None and max_sec is None:
         raise ValueError(
             "either a deadline or a number of points must be given")
-
     found = 0
     tried = 0
     t = np.ones(4)
@@ -78,7 +77,7 @@ def sample_solid(root, lo, hi, eval_pt, max_points=None, max_sec=None):
         t[1] = random.uniform(lo[1], hi[1])
         t[2] = random.uniform(lo[2], hi[2])
         if eval_pt(root, t):
-            yield t
+            yield np.array(t)
             found += 1
         tried += 1
         if tried % 1000 == 0:
@@ -97,6 +96,31 @@ def is_on_surface(accuracy):
         return val <= 0 and abs(val) <= accuracy
     return eval_t
 
+class VoxelMap(object):
+    def __init__(self, voxels, lo, hi, resolution):
+        self.voxels = voxels
+        self.lo = lo
+        self.hi = hi
+        self.resolution = resolution
+
+def voxelize(points, lo=None, hi=None, resolution=None, voxel_map=None):
+    if voxel_map is None:
+        size = (hi - lo)[:3]
+        px_size = np.ceil(size / resolution).astype(np.int)
+        print("allocating voxel array of size {}".format(
+            "x".join(map(str, px_size))))
+        print("    scene size is {:.3f}x{:.3f}x{:.3f}".format(*size))
+        print("    using {:.3f} megabytes".format(np.product(px_size) * 1e-6))
+        voxel_map = VoxelMap(
+            np.zeros(px_size, dtype=np.uint8), lo, hi, resolution)
+    else:
+        voxel_map.voxels.fill(0)
+    for p in points:
+        idx = ((p[:3] - lo) / resolution).astype(np.int)
+        voxel_map.voxels[tuple(idx)] = 1
+    return voxel_map
+
 def write_point_cloud(points, f):
     for point in points:
         f.write("{} {} {}\n".format(*(point[:3])))
+
