@@ -102,7 +102,7 @@ def draw_quads(quads, rot):
     glRotatef(4, 1, 0, 0)
 
     glPushMatrix()
-    glRotatef(rot, 0, 1, 0)                    
+    glRotatef(rot, 0, 1, 0)
     glBegin(GL_QUADS)
     for quad, normal in quads:
         glNormal3f(*normal)
@@ -113,15 +113,36 @@ def draw_quads(quads, rot):
 
     glPopMatrix()
 
-def show_voxels(voxel_map):
-    dist = -np.linalg.norm(voxel_map.hi - voxel_map.lo)
+def draw_points(points, rot, res):
+    glPushMatrix()
+    glColor3fv((1., 0.7, 0.))
+    glRotatef(4, 1, 0, 0)
+
+    glPushMatrix()
+    glRotatef(rot, 0, 1, 0)
+    glBegin(GL_TRIANGLES)
+    for point in points:
+        glNormal3f(1, 0, 0)
+        for delta in [[0, 0, 0], [0, res, 0], [0, 0, res]]:
+            glVertex3f(*(point[:3] + delta))
+        # glNormal3f(0, 0, 1)
+        # for delta in [[0, 0, 0], [0, res, 0], [res, 0, 0]]:
+        #     glVertex3f(*(point[:3] + delta))
+    glEnd()
+    glPopMatrix()
+
+    glPopMatrix()
+
+
+def draw_loop(draw_func, size):
+    dist = -np.linalg.norm(size)
     w = 800
     h = 800
     pygame.init()
     pygame.display.set_mode((w, h), OPENGL|DOUBLEBUF)
 
     glEnable(GL_DEPTH_TEST)
-    glClearColor(.2, .2, .3, 1.)
+    glClearColor(.0, .0, .1, 1.)
 
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
@@ -139,7 +160,6 @@ def show_voxels(voxel_map):
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, (1., 1., 1., 1.))
     glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, (50.,))
 
-    quads = voxels_to_quads(voxel_map)
     rot = 0
     while True:
         event = pygame.event.poll()
@@ -149,7 +169,6 @@ def show_voxels(voxel_map):
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        draw_quads(quads, rot)
+        draw_func(rot=rot)
         pygame.display.flip()
-        pygame.time.wait(3)
         rot += 2.

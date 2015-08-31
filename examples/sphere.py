@@ -1,3 +1,4 @@
+import functools
 import numpy as np
 from symrep import *
 from symrep.render import *
@@ -54,4 +55,6 @@ with open("sphere.xyz", "w") as f:
     solids.write_point_cloud(points, f)
 
 voxel_map = voxelize(points, bbox_lo, bbox_hi, 0.125)
-show_voxels(voxel_map)
+size = voxel_map.hi - voxel_map.lo
+#draw_loop(functools.partial(draw_quads, voxels_to_quads(voxel_map)), size)
+draw_loop(functools.partial(draw_points, points=points, res=0.05), size)
