@@ -49,9 +49,9 @@ with open("sphere.dot", "w") as f:
     to_dot(n, f)
 
 points = list(sample_solid(
-    n, bbox_lo, bbox_hi, is_inside, max_sec=30))
+    n, bbox_lo, bbox_hi, is_inside, max_sec=10))
 with open("sphere.xyz", "w") as f:
     solids.write_point_cloud(points, f)
 
-voxel_map = voxelize(points, bbox_lo, bbox_hi, 0.1)
+voxel_map = voxelize(points, bbox_lo, bbox_hi, 0.125)
 show_voxels(voxel_map)
