@@ -101,10 +101,10 @@ class SymrepTest(unittest.TestCase):
             symrep.solids.sphere(symrep.const(2)),
             symrep.const(np.array((4., 0., 0.))),
         )
-        self.assertLessEqual(n((4., 0., 0., 1.)), 0)
-        self.assertLessEqual(n((4., 1.5, 0., 1.)), 0)
-        self.assertGreaterEqual(n((4., 2.5, 0., 1.)), 0)
-        self.assertGreaterEqual(n((0., 0., 0., 1.)), 0)
+        self.assertLessEqual(n((4., 0., 0.)), 0)
+        self.assertLessEqual(n((4., 1.5, 0.)), 0)
+        self.assertGreaterEqual(n((4., 2.5, 0.)), 0)
+        self.assertGreaterEqual(n((0., 0., 0.)), 0)
 
 if __name__ == "__main__":
     unittest.main()
