@@ -90,8 +90,9 @@ class SymrepTest(unittest.TestCase):
 
     def test_sphere(self):
         n = symrep.solids.sphere(symrep.const(2))
-        cloud = list(symrep.solids.to_pointcloud(
-            n, -2. * np.ones(3), 2 * np.ones(3), 500))
+        cloud = list(symrep.solids.sample_solid(
+            n, -2. * np.ones(3), 2 * np.ones(3),
+            symrep.solids.is_inside, 500))
         self.assertEqual(len(cloud), 500)
         for pt in cloud:
             self.assertLessEqual(np.linalg.norm(pt[:3]), 2.)
