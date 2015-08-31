@@ -32,12 +32,14 @@ def translate(n, trans, name=None):
 
 def union(*nodes):
     return symrep.base.Node(
-        None, "union", lambda t: min(map(lambda n: n(t), nodes)),
+        None, "union",
+        lambda t: min(map(lambda n: n(t), nodes), key=lambda t: t[0]),
         {n: "value" for n in nodes})
 
 def intersection(*nodes):
     return symrep.base.Node(
-        None, "intersection", lambda t: max(map(lambda n: n(t), nodes)),
+        None, "intersection",
+        lambda t: max(map(lambda n: n(t), nodes), key=lambda t: t[0]),
         {n: "value" for n in nodes})
 
 def invert(n, name=None):
@@ -46,10 +48,18 @@ def invert(n, name=None):
 def difference(base, *subs):
     return intersection(base, invert(union(*subs)))
 
+def pack_res(d, norm):
+    res = np.zeros(4)
+    res[0] = d
+    res[1:] = norm
+    return res
+
 def sphere(radius, name=None):
-    return symrep.base.Node(
-        name, "sphere",
-        lambda t: np.linalg.norm(t[:3]) - radius(t), {radius: "radius"})
+    def s(t):
+        dist = np.linalg.norm(t[:3])
+        normal = t[:3] / dist
+        return pack_res(dist, normal)
+    return symrep.base.Node(name, "sphere", s, {radius: "radius"})
 
 def cylinder(radius, height, name=None):
     def eval_t(t):
